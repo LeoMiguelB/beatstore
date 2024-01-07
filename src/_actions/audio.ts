@@ -42,7 +42,7 @@ export const createTrackRecord = async (
   formData: FormData
 ) => {
   
-  // console.log(formData);
+  console.log(formData);
 
   const res = await fetch("https://api.dropboxapi.com/2/files/list_folder", {
     method: "POST",

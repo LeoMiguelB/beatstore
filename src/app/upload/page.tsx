@@ -1,9 +1,12 @@
 "use client"
 
 import { useFormState, useFormStatus } from "react-dom"
+import { useState } from "react";
 
 import { Button } from "../components/ShadCn/Button";
 import { createTrackRecord } from "@/_actions/audio";
+
+import { TagsInput } from "react-tag-input-component";
 
 const initialState = {
   track: null,
@@ -21,6 +24,10 @@ const page = () => {
   // TODO
   // go through docs to figure out how to type this correctly in acordance with typescript
   const [state, formAction] = useFormState<any>(createTrackRecord, initialState);
+
+  // for the tags input
+  const [selected, setSelected] = useState<string[]>([]);
+
 
   const { pending } = useFormStatus();
 
@@ -51,13 +58,23 @@ const page = () => {
           </div>
         </div>
 
-        <div className="bg-white p-3 rounded-xl w-80">
+        {/* TODO should figure out how to incorporate wave forms */}
+        {/* <div className="bg-white p-3 rounded-xl w-80">
           <div className="border-2 rounded-md p-8 border-dotted w-full h-full flex flex-col items-center">
             <p className="font-medium mb-1">Upload</p>
             <label htmlFor="img">Choose Waveform:</label>
             <input type="file" id="img" name="img" required accept="image/png, image/jpeg, image/jpg" className="bg-primary text-white font-medium text-sm py-2.5  px-6 rounded-3xl flex items-center gap-2 hover:bg-blue-700" />
           </div>
-        </div>
+        </div> */}
+
+
+        <h2>{JSON.stringify(selected)}</h2>
+        <TagsInput 
+          value={["init"]}
+          onChange={setSelected}
+          name="tags"
+          placeHolder="enter tags"
+        />
 
 
         {/* below made by 
@@ -87,9 +104,9 @@ const page = () => {
           <div className="row sm:flex">
             <div className="">
               <div className="box border-2 border-black rounded flex flex-col shadow bg-white">
-                <label htmlFor="label" className="box__title bg-grey px-3 py-2 border-b border-black text-sm text-grey-darker font-medium">Description</label>
+                <label htmlFor="description" className="box__title bg-grey px-3 py-2 border-b border-black text-sm text-grey-darker font-medium">Description</label>
               
-                <textarea id="label" name="label" placeholder="write description..." className="text-grey-darkest bg-transparent border-2" required />
+                <textarea id="description" name="description" placeholder="write description..." className="text-grey-darkest bg-transparent border-2" required />
               </div>
             </div>
           </div>

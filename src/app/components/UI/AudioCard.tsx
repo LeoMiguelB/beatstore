@@ -6,7 +6,8 @@ import player from "@libs/player/player";
 import { usePlayerState } from "@libs/player/hooks";
 import Image from "next/image";
 import { Button } from "../ShadCn/Button";
-
+import { Separator } from "@radix-ui/react-separator";
+import ArtistCard from "./ArtistCard";
 
 /*
 title: string | null;
@@ -40,7 +41,7 @@ const AudioCard: React.FC<AudioTrackProps> = (props) => {
       <div>
         
       </div>
-      <div key={id} className="flex flex-row justify-start w-full rounded-xl my-4">
+      <div key={id} className="flex flex-row justify-start items-center w-full rounded-xl my-4">
         <Image
           // default to the public img
           src={imgLink ? imgLink : "/cover.jpg"}
@@ -49,7 +50,7 @@ const AudioCard: React.FC<AudioTrackProps> = (props) => {
           width={200}
           height={200}
         />
-        <div className="pl-6 flex flex-col w-full">
+        <div className="pl-6 flex flex-col w-[27%]">
           <div className="flex flex-row justify-start items-center py-4">
             <div className="bg-secondary-foreground rounded-xl flex justify-center items-center p-2">
               {
@@ -70,16 +71,6 @@ const AudioCard: React.FC<AudioTrackProps> = (props) => {
               <h3 className="text-xs">{handleLengthLimit(producer, 70)}</h3>
             </div>
           </div>
-
-          <div className="py-2 w-full">
-              <Image
-                src="/waveform_sample.png"
-                width="200"
-                height="200"
-                alt="track waveform image"
-                className="object-cover w-full"
-              />
-            </div>
           
 
           <div className="flex flex-row gap-4 justify-start py-2">
@@ -99,6 +90,16 @@ const AudioCard: React.FC<AudioTrackProps> = (props) => {
             <a target="_blank" href={srcLink ? srcLink : ""}>
               <Button variant="secondary" size="sm">Download</Button>
             </a>
+          </div>
+        </div>
+        
+
+        <div className="flex flex-row h-[80%] w-1/3">
+          <Separator className="opacity-10 shrink-0 bg-border w-[1px] h-full"/>
+          <div className="pl-4 flex gap-4 flex-col">
+            {
+              Array(3).fill(<ArtistCard />)
+            }
           </div>
         </div>
 
