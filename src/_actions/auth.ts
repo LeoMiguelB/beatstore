@@ -6,6 +6,7 @@ export const getAccessToken = async () => {
 
   const res = await fetch(url,
     {
+      cache: 'no-store',
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
@@ -21,6 +22,8 @@ export const getAccessToken = async () => {
 
   const data = await res.json();
 
-  console.log(data.access_token);
+  const accessToken = data.access_token;
+
+  return accessToken;
   
 }

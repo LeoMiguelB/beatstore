@@ -70,11 +70,12 @@ const page = () => {
 
         <h2>{JSON.stringify(selected)}</h2>
         <TagsInput 
-          value={["init"]}
+          value={selected}
           onChange={setSelected}
-          name="tags"
+          name="na"
           placeHolder="enter tags"
         />
+        <input hidden type="text" value={JSON.stringify(selected)} name="tags" id="tags" />
 
 
         {/* below made by 
