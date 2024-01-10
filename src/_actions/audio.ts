@@ -54,35 +54,15 @@ export const createTrackRecord = async (
     // then after get sharable link
     // process this link such that it's a direct link
     // then update the db accordingly
-    const folderName = formData.get('track').name;
-    [formData.get('track'), formData.get('img')].forEach(item => {
-      const filePath = uploadFileDropbox(folderName, item, accessToken);
+    const folderName = formData.get('track')?.name;
+    
+    [{file: formData.get('track'), type: "src_link"}, {file: formData.get('img'), type: "img_link"}].forEach(async (item) => {
+      const filePath: string = await uploadFileDropbox(folderName, item.file, accessToken);
+
+      console.log(filePath);
+
+      const dlUrl = filePath.replace(/^(https:\/\/)www\./, '$1dl.');
     })
-
-  
-    const dbx = new Dropbox({ accessToken: accessToken});
-
-    const res = await dbx.filesListFolder({path: ''});
-    
-    
-  // now after we should simply get the sharable link (don't forget to integrate the db)
-
-  // const res = await fetch("https://api.dropboxapi.com/2/files/list_folder", 
-  // {
-  //   cache: 'no-store',
-  //   method: "POST",
-  //   headers: {
-  //     "Authorization": `Bearer ${accessToken}`,
-  //     "Content-Type": "application/json"
-  //   },
-  //   body: JSON.stringify({
-  //     path: `${process.env.ROOT_FOLDER_PATH}/`,
-  //   })
-  // })
-
-
-  const data = await res.json();
-  console.log(data);
 
 }
 
@@ -115,6 +95,24 @@ const uploadFileDropbox = async (folder: any, file: any, accessToken: any) => {
 
   return pathDisplay;
 
+}
+
+const getSharableLink = async (filePath: any, accessToken: any) => {
+  // default to public view 
+  const res = await fetch("https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings", 
+  {
+    cache: 'no-store',
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
+    },
+    body: {
+      "path": filePath
+    }
+  });
+
+  console.log(res);
 }
 
 // Helper function to read file content asynchronously
