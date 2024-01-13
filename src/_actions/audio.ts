@@ -11,6 +11,7 @@ import { Dropbox } from "dropbox";
 import { getAccessToken } from "./auth";
 
 import * as fs from 'fs';
+import * as path from 'path';
 
 import fetch from "node-fetch";
 
@@ -44,89 +45,46 @@ export const createTrackRecord = async (
   prevState: any,
   formData: FormData
 ) => {
-  
-    console.log(formData.get('track'));
 
-    
-    const accessToken = await getAccessToken();
+    // the files that will be used and stored inside the cloud storage
+    const fileTypes = [
+      {
+        type: "track",
+        field: "src_link"
+      },
+      {
+        type: "img",
+        field: "src_link"
+      }
+    ];
 
     // upload both track and img from the form
     // then after get sharable link
     // process this link such that it's a direct link
     // then update the db accordingly
-    const folderName = formData.get('track')?.name;
+    const folderName = path.join(process.env.ROOT_FOLDER_PATH, formData.get('track')?.name);
     
-    [{file: formData.get('track'), type: "src_link"}, {file: formData.get('img'), type: "img_link"}].forEach(async (item) => {
-      const filePath: string = await uploadFileDropbox(folderName, item.file, accessToken);
-
-      console.log(filePath);
-
-      const dlUrl = filePath.replace(/^(https:\/\/)www\./, '$1dl.');
+    
+    fileTypes.forEach(async (file) => {
+      const currFile: any = formData.get(file.type);
+      await uploadFile(currFile, folderName, file.field);
     })
-
+    
 }
 
-// TODO
-// should refactor this section, these are just to abstract the process 
-const uploadFileDropbox = async (folder: any, file: any, accessToken: any) => {
+const uploadFile = async (file: File, filePath: string, field: string) => {
+  try {
+    
+    const accessToken = await getAccessToken();
 
-  const fileBuffer = await readFileAsync(file);
+    const dbx = new Dropbox({accessToken, fetch});
 
-  const res = await fetch("https://content.dropboxapi.com/2/files/upload", 
-  {
-    cache: 'no-store',
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-      "Dropbox-API-Arg": {
-        "autorename": false,
-        "mode": "add",
-        "path":`${process.env.ROOT_FOLDER_PATH}/${folder}/${file.name}`
-      },
-      "Content-Type": "application/octet-stream"
-    },
-    body: fileBuffer
-  });
 
-  //  should get the path display in order to retrieve the sharable link
-  const data = await res.json();
+    const fileBuffer = await file.arrayBuffer();
+    
+    const fileUpload = await dbx.filesUpload({path: filePath, contents: file});
 
-  const pathDisplay = data.path_display;
-
-  return pathDisplay;
-
+  } catch (error) {
+    console.log("upload file error: " + error);
+  }
 }
-
-const getSharableLink = async (filePath: any, accessToken: any) => {
-  // default to public view 
-  const res = await fetch("https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings", 
-  {
-    cache: 'no-store',
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-      "Content-Type": "application/json"
-    },
-    body: {
-      "path": filePath
-    }
-  });
-
-  console.log(res);
-}
-
-// Helper function to read file content asynchronously
-const readFileAsync = (file: File): Promise<ArrayBuffer> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (reader.result instanceof ArrayBuffer) {
-        resolve(reader.result);
-      } else {
-        reject(new Error("Failed to read file content."));
-      }
-    };
-    reader.onerror = (error) => reject(error);
-    reader.readAsArrayBuffer(file);
-  });
-};
